@@ -1,0 +1,82 @@
+{
+  "schedules": [
+    {
+      "id": 1,
+      "title": "하체",
+      "startTime": 5140,
+      "endTime": 5185
+    },
+    {
+      "id": 2,
+      "title": "팔",
+      "startTime": 3010,
+      "endTime": 3070
+    },
+    {
+      "id": 3,
+      "title": "어깨",
+      "startTime": 4110,
+      "endTime": 4145
+    },
+    {
+      "id": 4,
+      "title": "가슴",
+      "startTime": 4073,
+      "endTime": 4110
+    },
+    {
+      "title": "333",
+      "startTime": 1043,
+      "endTime": 1063,
+      "id": 5
+    },
+    {
+      "title": "333",
+      "startTime": 4043,
+      "endTime": 4063,
+      "id": 6
+    },
+    {
+      "title": "333",
+      "startTime": 2043,
+      "endTime": 2063,
+      "id": 7
+    },
+    {
+      "title": "asfd",
+      "startTime": 6063,
+      "endTime": 6100,
+      "id": 8
+    },
+    {
+      "title": "목요일 새벽",
+      "startTime": 4000,
+      "endTime": 4030,
+      "id": 9
+    },
+    {
+      "title": "화",
+      "startTime": 2000,
+      "endTime": 2030,
+      "id": 10
+    },
+    {
+      "title": "수",
+      "startTime": 3000,
+      "endTime": 3010,
+      "id": 11
+    },
+    {
+      "title": "",
+      "startTime": 20,
+      "endTime": 43,
+      "id": 12
+    },
+    {
+      "title": "호ㅓㅏ",
+      "startTime": 6000,
+      "endTime": 30,
+      "id": 13
+    }
+  ]
+}
