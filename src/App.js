@@ -19,13 +19,8 @@ const Layout1 = styled.div`
 `;
 
 const Layout2 = styled.div`
-  grid-column: 3/13;
+  grid-column: 3/16;
   grid-row: 1/11;
-`;
-const Layout3 = styled.div`
-  grid-column: 13/16;
-  grid-row: 1/11;
-  /* background-color: wheat; */
 `;
 
 function App() {
@@ -38,7 +33,6 @@ function App() {
         <Gnb></Gnb>
         <TimeTable></TimeTable>
       </Layout2>
-      <Layout3 />
     </Grid>
   );
 }

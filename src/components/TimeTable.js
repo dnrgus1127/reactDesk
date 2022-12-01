@@ -19,7 +19,7 @@ const ContentLayout = styled.div`
   grid-template-columns: repeat(15, 1fr);
   grid-template-rows: repeat(10, 1fr);
   .main {
-    grid-column: 1/12;
+    grid-column: 1/10;
     grid-row: 1/11;
     border-top-left-radius: 12px;
     border-top-right-radius: 12px;
@@ -43,7 +43,7 @@ const ContentLayout = styled.div`
     box-shadow: inset 0px 0px 5px white;
   }
   .side {
-    grid-column: 12/16;
+    grid-column: 10/16;
     grid-row: 1/11;
     background-color: rgb(232, 232, 232);
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
@@ -66,7 +66,7 @@ const SideBtnCon = styled.div`
 
 const Table = styled.table`
   width: 100%;
-  height: 150%;
+  height: 300%;
   border-collapse: collapse;
 
   th {
@@ -155,11 +155,10 @@ const HourItem = styled.div`
   box-shadow: inset 0px 0px 8px rgba(0, 0, 0, 0.5);
   font-family: "LINESeedKR-Bd";
   height: ${(props) =>
-    props.rowSpan
-      ? `calc(${props.rowSpan} *100% + ${props.rowSpan}px)`
-      : "100%"};
+    props.ros ? `calc(${props.ros} *100% + ${props.ros}px)` : "100%"};
   background-color: ${(props) => props.backgroundColor};
   color: white;
+  z-index: 3;
 `;
 
 const TimeSelector = styled.div`
@@ -189,6 +188,34 @@ const TimeSelector = styled.div`
     box-shadow: inset 0px 0px 5px white;
   }
 `;
+const ScheduleList = styled.div`
+  width: 100%;
+  height: calc(100% - 84px - 48px);
+  overflow: auto;
+  padding: 0 12px;
+  &::-webkit-scrollbar {
+    width: 10px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #7f9592;
+    border-radius: 10px;
+    background-clip: padding-box;
+    border: 2px solid transparent;
+  }
+  &::-webkit-scrollbar-track {
+    border-radius: 10px;
+    box-shadow: inset 0px 0px 5px white;
+  }
+`;
+
+const ListItem = styled.div`
+  margin-bottom: 4px;
+  border: 1px solid #474e68;
+  padding: 4px 8px;
+  background-color: white;
+  border-radius: 4px;
+  font-family: "LINESeedKR-Bd";
+`;
 
 let emptySchedule = {
   id: 0,
@@ -208,10 +235,62 @@ function postSchedule(title, startTime, endTime) {
     headers: { "Content-Type": "application/json" },
   });
 }
+function ScheduleInfo(props) {
+  const schedule = props.schedule;
+  if (schedule === undefined) {
+    return;
+  }
+  const day = ["월", "화", "수", "목", "금", "토", "일"];
+  const contents = (
+    <ListItem>
+      <p>일정 이름 : {schedule.title}</p>
+      <p>요일 : {day[Math.trunc(schedule.startTime / 1000) - 1]}</p>
+      <p>
+        시작 시간 : {Math.trunc((schedule.startTime / 10) % 100)}시{" "}
+        {Math.trunc(schedule.startTime % 10)}0분
+      </p>
+      <p>
+        종료 시간 : {Math.trunc((schedule.endTime / 10) % 100)}시{" "}
+        {Math.trunc(schedule.endTime % 10)}0분
+      </p>
+    </ListItem>
+  );
+  return (
+    <React.Fragment>{schedule.startTime > 0 ? contents : null}</React.Fragment>
+  );
+}
+
+function rendList(arr, callback) {
+  const day = ["월", "화", "수", "목", "금", "토", "일"];
+
+  const list = arr.map((i) => {
+    return (
+      <ListItem
+        key={i.startTime}
+        onClick={() => {
+          callback(i.startTime);
+        }}
+      >
+        <p>일정 이름 : {i.title}</p>
+        <p>요일 : {day[Math.trunc(i.startTime / 1000) - 1]}</p>
+        <p>
+          시작 시간 : {Math.trunc((i.startTime / 10) % 100)}시{" "}
+          {Math.trunc(i.startTime % 10)}0분
+        </p>
+        <p>
+          종료 시간 : {Math.trunc((i.endTime / 10) % 100)}시{" "}
+          {Math.trunc(i.endTime % 10)}0분
+        </p>
+      </ListItem>
+    );
+  });
+  return <React.Fragment>{list}</React.Fragment>;
+}
 
 export default function TimeTable() {
   const [newOn, setNewOn] = useState(false);
   const [scheduleItemArr, setscheduleItemArr] = useState([]);
+  const [infoId, setInfoId] = useState(6063);
 
   useEffect(() => {
     fetch("http://localhost:8000/schedules")
@@ -229,6 +308,16 @@ export default function TimeTable() {
       });
   }, []);
 
+  const getScheduleById = (id) => {
+    let schedule;
+    scheduleItemArr.map((i) => {
+      if (i.startTime === Number(id)) {
+        schedule = i;
+      }
+      return null;
+    });
+    return schedule;
+  };
   /**
    * 인자로 받은 요일과 시간에 스케줄이 있으면 스케줄 HourItem반환, 없으면 null반환
    * @param {*} dayWeek 요일
@@ -260,8 +349,12 @@ export default function TimeTable() {
       <HourItem
         key={i.startTime}
         top={i.top}
-        rowSpan={i.span}
+        ros={i.span}
         backgroundColor={colors[(i.dayWeek + i.startHour) % 6]}
+        onClick={(e) => {
+          setInfoId(e.target.id);
+        }}
+        id={i.startTime}
       >
         {i.title}
       </HourItem>
@@ -438,6 +531,10 @@ export default function TimeTable() {
               ></img>
             </SideBtnCon>
           )}
+          <ScheduleInfo schedule={getScheduleById(infoId)}></ScheduleInfo>
+          <ScheduleList>
+            <div className="wrap">{rendList(scheduleItemArr, setInfoId)}</div>
+          </ScheduleList>
         </div>
       </ContentLayout>
     </Container>
