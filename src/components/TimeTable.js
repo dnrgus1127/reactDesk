@@ -48,12 +48,13 @@ const ContentLayout = styled.div`
     background-color: rgb(232, 232, 232);
     box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.3);
     border-top-right-radius: 12px;
+    padding: 0px 4px;
   }
 `;
 
 const SideBtnCon = styled.div`
   display: flex;
-  height: 48px;
+  height: 36px;
   padding: 10px 8px;
   justify-content: end;
   .plusLogo {
@@ -209,12 +210,51 @@ const ScheduleList = styled.div`
 `;
 
 const ListItem = styled.div`
-  margin-bottom: 4px;
-  border: 1px solid #474e68;
+  margin: 8px 0px;
+  border: 1px solid lightgrey;
   padding: 4px 8px;
-  background-color: white;
+  background-color: ${(props) => (props.bg ? props.bg : "white")};
   border-radius: 4px;
   font-family: "LINESeedKR-Bd";
+  color: ${(props) => (props.bg ? "white" : "black")};
+
+  .title-box {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0px;
+    padding-right: 8px;
+    font-size: 18px;
+  }
+  .title-box p {
+    font-size: 16px;
+    color: ${(props) => (props.bg ? "lightgreen" : "green")};
+  }
+
+  p {
+    font-size: 12px;
+    margin: 4px 8px;
+  }
+  .container-dayWeek {
+    display: flex;
+    color: grey;
+    font-size: 12px;
+  }
+  .container-dayWeek div {
+    margin: auto 8px;
+  }
+  .container-dayWeek .day {
+    color: ${(props) => (props.bg ? "white" : "black")};
+    font-size: 14px;
+  }
+  span {
+    margin-right: 28px;
+    margin-left: 2px;
+    font-size: 16px;
+  }
+
+  &:hover {
+    border: 1px solid #474e68;
+  }
 `;
 
 let emptySchedule = {
@@ -222,6 +262,11 @@ let emptySchedule = {
   title: "",
   startTime: 0,
   endTime: 0,
+  hourS: 0,
+  minS: 0,
+  hourE: 0,
+  minE: 0,
+  dayWeek: 0,
 };
 
 function postSchedule(title, startTime, endTime) {
@@ -242,16 +287,36 @@ function ScheduleInfo(props) {
   }
   const day = ["월", "화", "수", "목", "금", "토", "일"];
   const contents = (
-    <ListItem>
-      <p>일정 이름 : {schedule.title}</p>
-      <p>요일 : {day[Math.trunc(schedule.startTime / 1000) - 1]}</p>
+    <ListItem key={schedule.startTime} bg={"#3F3B6C"}>
+      <div className="title-box">
+        <p>[운동]</p>
+        <h3>{schedule.title}</h3>
+      </div>
+
+      <div className="container-dayWeek">
+        {day.map((j, idx) => (
+          <div
+            key={idx}
+            className={
+              idx === Math.trunc(schedule.startTime / 1000) - 1 ? "day" : null
+            }
+          >
+            {day[idx]}
+          </div>
+        ))}
+      </div>
       <p>
-        시작 시간 : {Math.trunc((schedule.startTime / 10) % 100)}시{" "}
-        {Math.trunc(schedule.startTime % 10)}0분
-      </p>
-      <p>
-        종료 시간 : {Math.trunc((schedule.endTime / 10) % 100)}시{" "}
-        {Math.trunc(schedule.endTime % 10)}0분
+        일정 시작 :
+        <span>
+          {Math.trunc((schedule.startTime / 10) % 100)}시{" "}
+          {Math.trunc(schedule.startTime % 10)}0분
+        </span>
+        일정 종료 :
+        <span>
+          {Math.trunc((schedule.endTime / 10) % 100)}시{" "}
+          {Math.trunc(schedule.endTime % 10)}
+          0분
+        </span>
       </p>
     </ListItem>
   );
@@ -271,15 +336,34 @@ function rendList(arr, callback) {
           callback(i.startTime);
         }}
       >
-        <p>일정 이름 : {i.title}</p>
-        <p>요일 : {day[Math.trunc(i.startTime / 1000) - 1]}</p>
+        <div className="title-box">
+          <p>[운동]</p>
+          <h3>{i.title}</h3>
+        </div>
+
+        <div className="container-dayWeek">
+          {day.map((j, idx) => (
+            <div
+              key={idx}
+              className={
+                idx === Math.trunc(i.startTime / 1000) - 1 ? "day" : null
+              }
+            >
+              {day[idx]}
+            </div>
+          ))}
+        </div>
         <p>
-          시작 시간 : {Math.trunc((i.startTime / 10) % 100)}시{" "}
-          {Math.trunc(i.startTime % 10)}0분
-        </p>
-        <p>
-          종료 시간 : {Math.trunc((i.endTime / 10) % 100)}시{" "}
-          {Math.trunc(i.endTime % 10)}0분
+          일정 시작 :
+          <span>
+            {Math.trunc((i.startTime / 10) % 100)}시{" "}
+            {Math.trunc(i.startTime % 10)}0분
+          </span>
+          일정 종료 :
+          <span>
+            {Math.trunc((i.endTime / 10) % 100)}시 {Math.trunc(i.endTime % 10)}
+            0분
+          </span>
         </p>
       </ListItem>
     );
@@ -393,6 +477,10 @@ export default function TimeTable() {
 
   function addSchedule(evt) {
     evt.preventDefault();
+    emptySchedule.startTime =
+      emptySchedule.minS + emptySchedule.hourS + emptySchedule.dayWeek;
+    emptySchedule.endTime =
+      emptySchedule.minE + emptySchedule.hourE + emptySchedule.dayWeek;
     var { id, title, startTime, endTime } = emptySchedule;
     setscheduleItemArr([
       new ScheduleItem(id, title, startTime, endTime),
@@ -448,7 +536,7 @@ export default function TimeTable() {
                   name=""
                   id=""
                   onChange={(e) => {
-                    emptySchedule.startTime = Number(e.target.value) * 10;
+                    emptySchedule.hourS = Number(e.target.value) * 10;
                   }}
                 >
                   <HourSelector></HourSelector>
@@ -457,7 +545,7 @@ export default function TimeTable() {
                   name=""
                   id=""
                   onChange={(e) => {
-                    emptySchedule.startTime += Number(e.target.value);
+                    emptySchedule.minS += Number(e.target.value);
                   }}
                 >
                   <MinSelector></MinSelector>
@@ -468,7 +556,7 @@ export default function TimeTable() {
                   name=""
                   id=""
                   onChange={(e) => {
-                    emptySchedule.endTime = Number(e.target.value) * 10;
+                    emptySchedule.hourE = Number(e.target.value) * 10;
                   }}
                 >
                   <HourSelector></HourSelector>
@@ -477,7 +565,7 @@ export default function TimeTable() {
                   name=""
                   id=""
                   onChange={(e) => {
-                    emptySchedule.endTime += Number(e.target.value);
+                    emptySchedule.minE = Number(e.target.value);
                   }}
                 >
                   <MinSelector></MinSelector>
@@ -488,8 +576,7 @@ export default function TimeTable() {
                 name="dayWeek"
                 id=""
                 onChange={(e) => {
-                  emptySchedule.startTime += Number(e.target.value) * 1000;
-                  emptySchedule.endTime += Number(e.target.value) * 1000;
+                  emptySchedule.dayWeek = Number(e.target.value) * 1000;
                 }}
               >
                 <option value="1">월</option>
